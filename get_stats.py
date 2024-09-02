@@ -4,7 +4,7 @@ import re
 
 total_miles = 0
 # get all the mkv files in the same directory
-for filepath in glob.glob('*.mkv'):
+for filepath in sorted(glob.glob('*.mkv')):
     print(filepath)
     cap = cv2.VideoCapture(filepath)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
