@@ -24,6 +24,9 @@ def analyze_jsonl(filename):
     return total_score
 
 
+# Output README.md
+
+print("```")
 start_date = datetime.date(2024, 8, 1)
 end_date = datetime.date(2024, 9, 30)
 
@@ -41,3 +44,5 @@ while current_date <= end_date:
     
     # Increment the current_date by one day
     current_date += datetime.timedelta(days=1)
+
+print("```")
