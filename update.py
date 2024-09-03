@@ -32,7 +32,7 @@ while current_date <= end_date:
     datestr = current_date.strftime('%Y%m%d')
 
     scores = []
-    for filename in glob.glob(f"{datestr}*.jsonl"):
+    for filename in sorted(glob.glob(f"{datestr}*.jsonl")):
         score = analyze_jsonl(filename)
         scores.append(str(score))
     
