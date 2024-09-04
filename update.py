@@ -16,12 +16,20 @@ if not os.path.exists(result_filename):
         subprocess.run(['python', 'analyze_video.py', latest_filename], stdout=f)
 
 def analyze_jsonl(filename):
-    total_score = 0
+    scores = []
     with open(filename) as f:
         for line in f:
             data = json.loads(line)
-            total_score += int(data['score'])
-    return total_score
+            scores.append(int(data['score']))
+    # compute AFMAD — Average Focus Minus Average Distraction
+    # average distraction is variance of the differences between consecutive focus levels
+    af = sum(scores) / len(scores)
+    ad = sum(abs(scores[i] - scores[i-1]) for i in range(1, len(scores))) / (len(scores) - 1)
+
+    length = len(scores)
+    total = length * (af - ad)
+    return f"{total:.2f} ({af:.2f}-{ad:.2f})*{length}"
+
 
 
 # Output README.md
@@ -40,7 +48,7 @@ while current_date <= end_date:
         scores.append(str(score))
     
     if scores:
-        print(f"{datestr} {' '.join(scores)}")
+        print(f"{datestr} {'   '.join(scores)}")
     
     # Increment the current_date by one day
     current_date += datetime.timedelta(days=1)
