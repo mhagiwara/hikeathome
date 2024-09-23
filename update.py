@@ -5,6 +5,7 @@ import os
 import subprocess
 import sys
 import datetime
+from datetime import timedelta
 
 latest_filename = list(sorted(glob.glob('*.mkv')))[-1]
 
@@ -34,23 +35,77 @@ def analyze_jsonl(filename):
 
 # Output README.md
 
+scores = []
+dates = []
+
+# Embed contribution.png
+print("![contribution](contribution.png)")
+
 print("```")
 start_date = datetime.date(2024, 8, 1)
-end_date = datetime.date(2024, 9, 30)
+# adjust to the first Monday of the month
+start_date = start_date + timedelta(days=(7 - start_date.weekday()) % 7)
+end_date = datetime.date.today()
 
 current_date = start_date
+
 while current_date <= end_date:
     datestr = current_date.strftime('%Y%m%d')
 
-    scores = []
+    day_scores = []
+    total_day_score = 0
     for filename in sorted(glob.glob(f"{datestr}*.jsonl")):
         score = analyze_jsonl(filename)
-        scores.append(str(score))
+        day_scores.append(str(score))
+        total_day_score += float(score.split()[0])        
     
-    if scores:
-        print(f"{datestr} {'   '.join(scores)}")
+    if day_scores:
+        print(f"{datestr} {'   '.join(day_scores)}")
     
+    scores.append(total_day_score)
+    dates.append(current_date)
+
     # Increment the current_date by one day
     current_date += datetime.timedelta(days=1)
 
 print("```")
+
+
+# Visualize the data in a heatmap
+import numpy as np
+import matplotlib.pyplot as plt
+import calendar
+from datetime import datetime, timedelta
+
+# Initialize an array to hold contributions in a (weeks x 7 days) shape
+weeks_in_year = (len(dates) + start_date.weekday()) // 7 + 1
+contribution_grid = np.zeros((7, weeks_in_year))  # 7 rows for each day of the week
+
+# Fill the contribution grid
+for i, date in enumerate(dates):
+    week = (date - start_date).days // 7
+    day_of_week = date.weekday()
+    contribution_grid[day_of_week, week] = scores[i]
+
+# Calculate the Mondays for each week
+week_start_dates = [start_date + timedelta(weeks=i) for i in range(weeks_in_year)]
+week_labels = [date.strftime('%Y-%m-%d') for date in week_start_dates]
+
+# Plotting the contribution heatmap
+fig, ax = plt.subplots(figsize=(15, 5))
+heatmap = ax.imshow(contribution_grid, cmap='Greens', interpolation='nearest')
+
+# Customize the ticks (set weekdays and weeks)
+ax.set_yticks(np.arange(7))
+ax.set_yticklabels([calendar.day_name[i] for i in range(7)])
+
+# Set week labels as the Monday dates
+ax.set_xticks(np.arange(weeks_in_year))
+ax.set_xticklabels(week_labels, rotation=45, ha='right')
+
+# Add colorbar to show the scale
+plt.colorbar(heatmap, ax=ax)
+
+# Save to contribution.png
+plt.title('Github-like Contribution Heatmap')
+plt.savefig('contribution.png', bbox_inches='tight')
