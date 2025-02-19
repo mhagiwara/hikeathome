@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "matplotlib==3.7.5",
+#     "openai==1.59.2",
+#     "opencv-python==4.8.1.78",
+# ]
+# ///
 # get the filename of the latest video file that ends with .mkv
 import glob
 import json
@@ -7,7 +15,7 @@ import sys
 import datetime
 from datetime import timedelta
 
-latest_filename = list(sorted(glob.glob('*.mkv')))[-1]
+latest_filename = list(sorted(glob.glob('data/*.mkv')))[-1]
 
 # run analyze_video.py with that file, outputting  to stdout the result in the jsonl file that has the same filename
 result_filename = latest_filename.replace('.mkv', '.jsonl')
@@ -54,7 +62,7 @@ while current_date <= end_date:
 
     day_scores = []
     total_day_score = 0
-    for filename in sorted(glob.glob(f"{datestr}*.jsonl")):
+    for filename in sorted(glob.glob(f"data/{datestr}*.jsonl")):
         score = analyze_jsonl(filename)
         day_scores.append(str(score))
         total_day_score += float(score.split()[0])        

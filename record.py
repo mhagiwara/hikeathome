@@ -20,7 +20,9 @@ else:
 
 filter_options = ['-filter_complex', '[0]scale=160:90 [overlay]; [1]scale=640:400 [base]; [base][overlay]  overlay=main_w - overlay_w:main_h - overlay_h[out]; [out]fps=30']
 
-p = subprocess.Popen(['ffmpeg', '-probesize', '50000000'] + input1_options + input2_options + filter_options + [timestamp + '.mkv'])
+output_path = 'data/' + timestamp + '.mkv'
+
+p = subprocess.Popen(['ffmpeg', '-probesize', '50000000'] + input1_options + input2_options + filter_options + [output_path])
 
 while True:
     time.sleep(1.)
